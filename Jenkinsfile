@@ -1,12 +1,14 @@
 pipeline {
     agent any
     stages {
+        /*
         stage('Build') {
             steps {
                 echo 'Running build automation'
                 sh './mvnw package'
             }
         }
+        */
         stage('Build Docker Image') {
             when {
                 branch 'main'
