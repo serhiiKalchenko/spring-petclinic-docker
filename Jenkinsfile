@@ -14,9 +14,6 @@ pipeline {
             steps {
                 script {
                     app = docker.build("serhiikalchenko/spring-petclinic-image")
-                    app.inside {
-                        sh 'echo $(curl localhost:8080)'
-                    }
                 }
             }
         }
