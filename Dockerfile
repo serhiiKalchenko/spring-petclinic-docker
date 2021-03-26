@@ -1,5 +1,6 @@
 FROM openjdk:17-oraclelinux7
-COPY ./target/*.jar /usr/src/myapp
-WORKDIR /usr/src/myapp
+RUN mkdir ~/myapp
+WORKDIR ~/myapp
+COPY ./target/*.jar .
 RUN javac Main.java
 CMD ["java", "Main"]
