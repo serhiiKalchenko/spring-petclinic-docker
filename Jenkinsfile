@@ -39,14 +39,16 @@ pipeline {
             when {
                 branch 'main'
             }
+            environment { 
+                BUILD = ${env.BUILD_NUMBER} - 1
+            }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'stage_server_creds', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
                         sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$STAGE_SERVER_IP \"docker pull serhiikalchenko/spring-petclinic-image:${env.BUILD_NUMBER}\""
                         try {
                             sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$STAGE_SERVER_IP \"docker stop spring-petclinic\""
-                            BUILD_NUMBER = ${env.BUILD_NUMBER} - 1
-                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$STAGE_SERVER_IP \"docker rmi serhiikalchenko/spring-petclinic-image:$BUILD_NUMBER\""
+                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$STAGE_SERVER_IP \"docker rmi serhiikalchenko/spring-petclinic-image:${env.BUILD}\""
                         } catch (err) {
                             echo: 'caught error: $err'
                         }
