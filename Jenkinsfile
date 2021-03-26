@@ -46,7 +46,7 @@ pipeline {
                         sh ''
                         try {
                             sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$STAGE_SERVER_IP \"docker stop spring-petclinic\""
-                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$STAGE_SERVER_IP \"let BUILD=${env.BUILD_NUMBER}-1; docker rmi serhiikalchenko/spring-petclinic-image:$BUILD\""
+                            //sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$STAGE_SERVER_IP \"let BUILD=${env.BUILD_NUMBER}-1; docker rmi serhiikalchenko/spring-petclinic-image:$BUILD\""
                         } catch (err) {
                             echo: 'caught error: $err'
                         }
