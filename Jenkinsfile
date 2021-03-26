@@ -14,6 +14,9 @@ pipeline {
             steps {
                 script {
                     app = docker.build("serhiikalchenko/spring-petclinic-image")
+                    app.inside {
+                        sh 'echo $(curl localhost:8080)'
+                    }
                 }
             }
         }
@@ -43,7 +46,7 @@ pipeline {
                         } catch (err) {
                             echo: 'caught error: $err'
                         }
-                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$STAGE_SERVER_IP \"docker run -d --rm --restart always --name spring-petclinic -p 8080:8080 serhiikalchenko/spring-petclinic-image:${env.BUILD_NUMBER}\""
+                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$STAGE_SERVER_IP \"docker run -d --rm --name spring-petclinic -p 8080:8080 serhiikalchenko/spring-petclinic-image:${env.BUILD_NUMBER}\""
                     }
                 }
             }
