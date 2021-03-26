@@ -5,12 +5,11 @@ pipeline {
             steps {
                 echo 'Running build automation'
                 sh './mvnw package'
-                archiveArtifacts artifacts: 'spring-petclinic.zip'
             }
         }
         stage('Build Docker Image') {
             when {
-                branch 'master'
+                branch 'main'
             }
             steps {
                 script {
@@ -23,7 +22,7 @@ pipeline {
         }
         stage('Push Docker Image') {
             when {
-                branch 'master'
+                branch 'main'
             }
             steps {
                 script {
@@ -36,7 +35,7 @@ pipeline {
         }
         stage('Deploy To Stage-Server') {
             when {
-                branch 'master'
+                branch 'main'
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'stage_server_creds', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
