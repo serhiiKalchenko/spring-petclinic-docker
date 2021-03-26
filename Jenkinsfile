@@ -4,8 +4,8 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Running build automation'
-                sh './gradlew build --no-daemon'
-                archiveArtifacts artifacts: 'dist/trainSchedule.zip'
+                sh './mvnw package'
+                archiveArtifacts artifacts: 'dist/spring-petclinic.zip'
             }
         }
         stage('Build Docker Image') {
@@ -14,7 +14,7 @@ pipeline {
             }
             steps {
                 script {
-                    app = docker.build("serhiikalchenko/train-schedule")
+                    app = docker.build("serhiikalchenko/spring-petclinic-image")
                     app.inside {
                         sh 'echo $(curl localhost:8080)'
                     }
@@ -34,21 +34,20 @@ pipeline {
                 }
             }
         }
-        stage('DeployToProduction') {
+        stage('Deploy To Stage-Server') {
             when {
                 branch 'master'
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'prod_server_creds', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'stage_server_creds', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
-                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$PROD_SERVER_IP \"docker pull serhiikalchenko/train-schedule:${env.BUILD_NUMBER}\""
+                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$STAGE_SERVER_IP \"docker pull serhiikalchenko/spring-petclinic-image:${env.BUILD_NUMBER}\""
                         try {
-                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$PROD_SERVER_IP \"docker stop train-schedule\""
-                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$PROD_SERVER_IP \"docker rm train-schedule\""
+                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$STAGE_SERVER_IP \"docker stop spring-petclinic\""
                         } catch (err) {
                             echo: 'caught error: $err'
                         }
-                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$PROD_SERVER_IP \"docker run --restart always --name train-schedule -p 8080:8080 -d serhiikalchenko/train-schedule:${env.BUILD_NUMBER}\""
+                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$STAGE_SERVER_IP \"docker run -d --rm --restart always --name spring-petclinic -p 8080:8080 serhiikalchenko/spring-petclinic-image:${env.BUILD_NUMBER}\""
                     }
                 }
             }
