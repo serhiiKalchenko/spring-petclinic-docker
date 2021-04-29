@@ -53,6 +53,8 @@ pipeline {
                             echo "caught error: $err"
                         }
                         sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$STAGE_SERVER_IP \"docker run -d --rm --name spring-petclinic -p 8080:8080 $DOCKER_IMAGE_NAME:${env.BUILD_NUMBER}\""
+                        // clean up old images: docker system prune -a -f
+                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$STAGE_SERVER_IP \"docker system prune -a -f\""
                     }
                 }
             }
